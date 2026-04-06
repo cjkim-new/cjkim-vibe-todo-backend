@@ -41,22 +41,23 @@ app.get("/", (req, res) => {
 
 app.use("/todos", todoRoutes);
 
-async function startServer() {
+async function connectMongoDB() {
   try {
     if (!MONGO_URI) {
-      throw new Error("MONGO_URI 환경변수가 설정되지 않았습니다.");
+      console.error("MONGO_URI 환경변수가 설정되지 않았습니다.");
+      return;
     }
 
     await mongoose.connect(MONGO_URI);
     console.log("연결성공");
-
-    app.listen(PORT, () => {
-      console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`);
-    });
   } catch (error) {
     console.error("MongoDB 연결 실패:", error.message);
-    process.exit(1);
+    setTimeout(connectMongoDB, 5000);
   }
 }
 
-startServer();
+app.listen(PORT, () => {
+  console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`);
+});
+
+connectMongoDB();

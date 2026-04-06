@@ -1,7 +1,15 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const Todo = require("../models/Todo");
 
 const router = express.Router();
+
+router.use((req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ message: "데이터베이스 연결 대기 중입니다." });
+  }
+  return next();
+});
 
 router.post("/", async (req, res) => {
   try {
